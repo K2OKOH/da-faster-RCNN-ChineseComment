@@ -55,12 +55,13 @@ class _ProposalLayer(nn.Module):
 
     def forward(self, input):
         '''
+        # 源域和目标域的保留的num_proposal个数不同,以源域为例子做注释
         输入:
-            是个tuple(),元素如下
-            rpn_cls_prob    ->  torch.size([1, 24, H, W]), 每层的像素是fg/bg的概率
-            rpn_bbox_pred   ->  预测bbox的feature_map(大小:[1, 48, H, W])
-            im_info         ->  图片的大小H, W, ratio
-            cfg_key         ->  'TRAIN' or 'TEST'
+            input是个tuple(),元素如下
+                rpn_cls_prob    ->  torch.size([1, 24, H, W]), 每层的像素是fg/bg的概率
+                rpn_bbox_pred   ->  预测bbox的feature_map(大小:[1, 48, H, W])
+                im_info         ->  图片的大小H, W, ratio
+                cfg_key         ->  'TRAIN' or 'TEST'
         输出:
             output          ->  size([1, num_proposal, 5])
         '''
@@ -86,11 +87,11 @@ class _ProposalLayer(nn.Module):
         bbox_deltas = input[1]
         im_info = input[2]
         cfg_key = input[3]
-
-        pre_nms_topN  = cfg[cfg_key].RPN_PRE_NMS_TOP_N  # 12000  NMS前保留的proposal
-        post_nms_topN = cfg[cfg_key].RPN_POST_NMS_TOP_N # 2000   NMS后保留的proposal
-        nms_thresh    = cfg[cfg_key].RPN_NMS_THRESH     # 0.7
-        min_size      = cfg[cfg_key].RPN_MIN_SIZE       # 8
+                                                        # TRAIN :   TEST
+        pre_nms_topN  = cfg[cfg_key].RPN_PRE_NMS_TOP_N  # 12000 :   6000  NMS前保留的proposal
+        post_nms_topN = cfg[cfg_key].RPN_POST_NMS_TOP_N # 2000  :   300   NMS后保留的proposal
+        nms_thresh    = cfg[cfg_key].RPN_NMS_THRESH     # 0.7   :   0.7
+        min_size      = cfg[cfg_key].RPN_MIN_SIZE       # 8     :   16
 
         # 这里就是1张图
         batch_size = bbox_deltas.size(0)

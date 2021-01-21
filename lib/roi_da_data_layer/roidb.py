@@ -119,7 +119,7 @@ def combined_roidb(imdb_names, training=True):   #dataset name
   """
   def get_training_roidb(imdb):
     """Returns a roidb (Region of Interest database) for use in training."""
-    # 如果使用翻转,数据增广
+    # 如果使用翻转,数据增广 2975张 -> 5950张
     if cfg.TRAIN.USE_FLIPPED:
       print('Appending horizontally-flipped training examples...')
       imdb.append_flipped_images()    #  data augment
@@ -167,7 +167,7 @@ def combined_roidb(imdb_names, training=True):   #dataset name
 
   # 如果是在训练过程
   if training:
-    # 过滤没有目标框的目标
+    # 过滤没有目标框的目标    !!对cityscape : 5950张 -> 5932张
     roidb = filter_roidb(roidb)    # filter samples without bbox
 
   ratio_list, ratio_index = rank_roidb_ratio(roidb)   #  进行长宽比的排列,排列后的长宽比列表ratio_list & 长宽比的次序ratio_index

@@ -106,7 +106,7 @@ class _RPN(nn.Module):
             cfg_key         ->  'TRAIN' or 'TEST'
         输出:
             rois            ->  size([1, num_proposal, 5])
-            rois是anchor经过fg/bg预测 + nms 筛选过后的proposal, num_proposal<=2000, 最后一维[第一个元素恒定为0,x1,y1,x2,y2]
+            rois是anchor经过fg/bg预测 + nms 筛选过后的proposal, num_proposal<=2000(目标域是300), 最后一维[第一个元素恒定为0,x1,y1,x2,y2]
         '''
         rois = self.RPN_proposal((rpn_cls_prob.data, rpn_bbox_pred.data,
                                  im_info, cfg_key))
@@ -115,6 +115,7 @@ class _RPN(nn.Module):
         self.rpn_loss_box = 0
 
         # generating training labels and build the rpn loss
+        # 源域 需要进行, 目标域 跳过
         if self.training:
             # 如果 gt_boxes 不存在就警告
             assert gt_boxes is not None

@@ -170,7 +170,6 @@ class _fasterRCNN(nn.Module):
             # bounding box regression L1 loss
             RCNN_loss_bbox = _smooth_l1_loss(bbox_pred, rois_target, rois_inside_ws, rois_outside_ws)
 
-
         cls_prob = cls_prob.view(batch_size, rois.size(1), -1)
         bbox_pred = bbox_pred.view(batch_size, rois.size(1), -1)
 
@@ -187,8 +186,10 @@ class _fasterRCNN(nn.Module):
         tgt_base_feat = self.RCNN_base(tgt_im_data)
 
         # feed base feature map tp RPN to obtain rois
-        # 前景背景判断????
+        # 设定为测试,不进行training步骤,不算损失
         self.RCNN_rpn.eval()
+        # 前景背景判断,仅仅预测roi,目标域无标签不进行loss计算
+        # tgt_rois  ->  size([1, num_proposal, 5])  ->  num_proposal<=300(和源域不同), 最后一维[第一个元素恒定为0,x1,y1,x2,y2]
         tgt_rois, tgt_rpn_loss_cls, tgt_rpn_loss_bbox = \
             self.RCNN_rpn(tgt_base_feat, tgt_im_info, tgt_gt_boxes, tgt_num_boxes)
 
