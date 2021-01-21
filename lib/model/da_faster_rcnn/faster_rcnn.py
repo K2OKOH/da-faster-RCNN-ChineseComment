@@ -84,7 +84,11 @@ class _fasterRCNN(nn.Module):
         # if it is training phrase, then use ground trubut bboxes for refining
         if self.training:
             '''
-            再次对roi进行筛选??
+            作用:
+                再次对roi进行筛选(到256个vgg16.yml中设定)
+                roi对应的GT标签(之前的步骤只有fg,bg,这里得到的是class)
+                roi的GT变化量(之后就是要通过这个做回归)
+                得到权重
             输入:
                 rois        ->  size([1, num_proposal, 5])
                     rois是anchor经过rpn预测保留的前景fg + nms 筛选过后的proposal, num_proposal<=2000, 最后一维[第一个元素恒定为0,x1,y1,x2,y2]
@@ -92,11 +96,11 @@ class _fasterRCNN(nn.Module):
                 num_boxes   ->  目标框的数量      ->  size(1)
             输出:
                 rois_data   -> list
-                    rois            ->  (1,proposal数量,5)        proposal数量 = 256
-                    rois_label      ->  (1,proposal数量)
-                    rois_target
-                    rois_inside_ws
-                    rois_outside_ws
+                    rois            ->  size([1,256,5])    预测框:最后一维 前1:0   后4:坐标
+                    rois_label      ->  size([1,256])      正样本的标签
+                    rois_target     ->  size([1,256,4])     -> 两个平移变化量，两个缩放变化量
+                    rois_inside_ws  ->  size([1,256,4])     ->  最后一维度:(1.0, 1.0, 1.0, 1.0)
+                    rois_outside_ws ->  size([1,256,4])     ->  最后一维度:(1.0, 1.0, 1.0, 1.0)
             '''
             roi_data = self.RCNN_proposal_target(rois, gt_boxes, num_boxes)
             rois, rois_label, rois_target, rois_inside_ws, rois_outside_ws = roi_data
