@@ -48,15 +48,19 @@ class InstanceLabelResizeLayer(nn.Module):
         self.minibatch=256
 
     def forward(self, x,need_backprop):
+        # feats -> ([256, 1])
         feats = x.data.cpu().numpy()
+        # lbs.size() --> ([1])
         lbs = need_backprop.data.cpu().numpy()
 
-
-
+        # resized_lbs -> size([256,1])
         resized_lbs = np.ones((feats.shape[0], 1), dtype=np.float32)
+        # lbs.shape[0]=1  ->  i=0
         for i in range(lbs.shape[0]):
+            # resized_lbs[0:256] = lbs[0]
             resized_lbs[i*self.minibatch:(i+1)*self.minibatch] = lbs[i]
-
+        # resized_lbs -> size([256, 1])
         y=torch.from_numpy(resized_lbs).cuda()
+        # y -> size([256, 1]) 256个roi是fg还是bg (目标域数据个数不同)
 
         return y

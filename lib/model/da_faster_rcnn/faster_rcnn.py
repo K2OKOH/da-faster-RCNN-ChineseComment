@@ -41,6 +41,7 @@ class _fasterRCNN(nn.Module):
         self.grid_size = cfg.POOLING_SIZE * 2 if cfg.CROP_RESIZE_WITH_MAX_POOL else cfg.POOLING_SIZE
         self.RCNN_roi_crop = _RoICrop()
 
+        # dout_base_model = 512
         self.RCNN_imageDA = _ImageDA(self.dout_base_model)
         self.RCNN_instanceDA = _InstanceDA()
         self.consistency_loss = torch.nn.MSELoss(size_average=False)
@@ -234,16 +235,28 @@ class _fasterRCNN(nn.Module):
         tgt_DA_ins_loss_cls = 0
 
         # 提取源域特征
+        # 这里的need_backprop??
         base_score, base_label = self.RCNN_imageDA(base_feat, need_backprop)
 
-        # Image DA
+        # Image DA 图像级对齐
         base_prob = F.log_softmax(base_score, dim=1)
         DA_img_loss_cls = F.nll_loss(base_prob, base_label)
-        
+
+        # 实例级对齐
+        '''
+        输入roi特征,输出域特征
+        输入:
+            pooled_feat     ->  size([256,4096])
+            need_backprop   ->  size([1])
+        输出:
+            instance_sigmoid->  size([256,1])
+            same_size_label ->  size([256,1])
+        '''
         instance_sigmoid, same_size_label = self.RCNN_instanceDA(pooled_feat, need_backprop)
         instance_loss = nn.BCELoss()
         DA_ins_loss_cls = instance_loss(instance_sigmoid, same_size_label)
 
+        # 一致性对齐
         #consistency_prob = torch.max(F.softmax(base_score, dim=1),dim=1)[0]
         consistency_prob = F.softmax(base_score, dim=1)[:,1,:,:]
         consistency_prob=torch.mean(consistency_prob)

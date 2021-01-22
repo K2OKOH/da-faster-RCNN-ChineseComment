@@ -5,7 +5,7 @@
       <sourceFolder url="file://$MODULE_DIR$/lib" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
     </content>
-    <orderEntry type="jdk" jdkName="Remote Python 3.6.12 (sftp://dl@172.20.47.198:22/media/dl/164c1aa7-6fd5-40da-ad51-7c53bfbbd9bc/anaconda3/envs/xmjdaf/bin/python3.6)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.6 (DAF)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PyDocumentationSettings">
