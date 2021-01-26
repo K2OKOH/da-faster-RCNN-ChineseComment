@@ -422,9 +422,9 @@ if __name__ == '__main__':
       list包含5个tensor分别是:
         # padding_data 图像数据
         # im_info -> 图片的H,W,ratio
-        # gt_boxes_padding -> bbox的5个标注
+        # gt_boxes_padding -> bbox的5个标注(cls, reg)
         # num_boxes -> bbox的数量
-        # need_backprop -> 是否需要反向传播
+        # need_backprop -> 是否需要反向传播(其实是源域目标域的标注)
       '''
       # 把variable的data改变维度并复制数据
       im_data.data.resize_(data[0].size()).copy_(data[0])  # change holder size
@@ -446,32 +446,35 @@ if __name__ == '__main__':
       fasterRCNN.zero_grad()
       # 投喂参数并得到结果
       '''
-      输出的都是些什么呢?
+      构建网络并前向传播
       输入:
-        im_data
-        im_info
-        gt_boxes
-        num_boxes
-        need_backprop
+            ### 源域 ###
+        im_data             ->  图像数据
+        im_info             ->  图片的H,W,ratio
+        gt_boxes            ->  bbox的5个标注(cls, reg)
+        num_boxes           ->  bbox的数量
+        need_backprop       ->  是否需要反向传播(其实是源域目标域的标注)
+            ### 目标域 ###
         tgt_im_data
         tgt_im_info
         tgt_gt_boxes
         tgt_num_boxes
         tgt_need_backprop
       输出:
-        rois
-        cls_prob
-        bbox_pred
-        rpn_loss_cls
-        rpn_loss_box
-        RCNN_loss_cls
-        RCNN_loss_bbox
-        rois_label
-        DA_img_loss_cls
-        DA_ins_loss_cls
-        tgt_DA_img_loss_cls
-        tgt_DA_ins_loss_cls
-        DA_cst_loss,tgt_DA_cst_loss
+        rois                ->  size([1,256,5])     预测框:最后一维 前1:0   后4:坐标
+        cls_prob            ->  size([1, 256, 9])   预测类别:onehot,softmax后
+        bbox_pred           ->  size([1, 256, 4])   预测框的坐标值(rois回归后)
+        rpn_loss_cls        ->  单个值               RPN分类损失
+        rpn_loss_box        ->  单个值               RPN回归损失
+        RCNN_loss_cls       ->  单个值               分类损失
+        RCNN_loss_bbox      ->  单个值               回归损失
+        rois_label          ->  size([256])         正样本标签
+        DA_img_loss_cls     ->  单个值               image-level源域损失
+        DA_ins_loss_cls     ->  单个值               instance-level源域损失
+        tgt_DA_img_loss_cls ->  单个值               image-level目标域损失
+        tgt_DA_ins_loss_cls ->  单个值               instance-level目标域损失
+        DA_cst_loss         ->  单个值               一致性源域损失
+        tgt_DA_cst_loss     ->  单个值               一致性目标域损失
       '''
       rois, cls_prob, bbox_pred, \
       rpn_loss_cls, rpn_loss_box, \
@@ -482,6 +485,7 @@ if __name__ == '__main__':
                      tgt_im_data, tgt_im_info, tgt_gt_boxes, tgt_num_boxes, tgt_need_backprop)
 
       # 计算loss
+      # (.mean()加不加无所谓，因为都是一个数的tensor)
       loss = rpn_loss_cls.mean() + rpn_loss_box.mean() \
            + RCNN_loss_cls.mean() + RCNN_loss_bbox.mean()\
              +args.lamda*(DA_img_loss_cls.mean()+DA_ins_loss_cls.mean()\

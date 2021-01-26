@@ -60,8 +60,10 @@ class vgg16(_fasterRCNN):
     self.RCNN_top = vgg.classifier
 
     # not using the last maxpool layer
+    # 用于再 roi_pooling后的分类 维度 4096 -> 9
     self.RCNN_cls_score = nn.Linear(4096, self.n_classes)
 
+    # 是否与类有关
     if self.class_agnostic:
       self.RCNN_bbox_pred = nn.Linear(4096, 4)
     else:

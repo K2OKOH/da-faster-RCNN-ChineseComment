@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="0f25f213-b41f-407b-8dd0-5b0ecc23b2cc" name="Default Changelist" comment="- 数据增广(翻转)注释的改正&#10;- 对目标域RPN网络的补充">
-      <change beforePath="$PROJECT_DIR$/.idea/da-faster-rcnn-PyTorch-comment.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/da-faster-rcnn-PyTorch-comment.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="0f25f213-b41f-407b-8dd0-5b0ecc23b2cc" name="Default Changelist" comment="- 对实例对齐进行详细注释（包括GRL层）">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/model/da_faster_rcnn/DA.py" beforeDir="false" afterPath="$PROJECT_DIR$/lib/model/da_faster_rcnn/DA.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/model/da_faster_rcnn/LabelResizeLayer.py" beforeDir="false" afterPath="$PROJECT_DIR$/lib/model/da_faster_rcnn/LabelResizeLayer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/da_trainval_net.py" beforeDir="false" afterPath="$PROJECT_DIR$/da_trainval_net.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/model/da_faster_rcnn/faster_rcnn.py" beforeDir="false" afterPath="$PROJECT_DIR$/lib/model/da_faster_rcnn/faster_rcnn.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/model/da_faster_rcnn/vgg16.py" beforeDir="false" afterPath="$PROJECT_DIR$/lib/model/da_faster_rcnn/vgg16.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -95,7 +93,7 @@
       <workItem from="1611153941906" duration="163000" />
       <workItem from="1611154159790" duration="123000" />
       <workItem from="1611155029571" duration="10651000" />
-      <workItem from="1611234767894" duration="15447000" />
+      <workItem from="1611234767894" duration="27106000" />
     </task>
     <task id="LOCAL-00001" summary="chinese_comment">
       <created>1611155051947</created>
@@ -118,7 +116,14 @@
       <option name="project" value="LOCAL" />
       <updated>1611218903855</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="- 对实例对齐进行详细注释（包括GRL层）">
+      <created>1611309095660</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1611309095660</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -140,7 +145,8 @@
     <MESSAGE value="chinese_comment" />
     <MESSAGE value="修改proposal_target_layer_cascade.py的中文注释" />
     <MESSAGE value="- 数据增广(翻转)注释的改正&#10;- 对目标域RPN网络的补充" />
-    <option name="LAST_COMMIT_MESSAGE" value="- 数据增广(翻转)注释的改正&#10;- 对目标域RPN网络的补充" />
+    <MESSAGE value="- 对实例对齐进行详细注释（包括GRL层）" />
+    <option name="LAST_COMMIT_MESSAGE" value="- 对实例对齐进行详细注释（包括GRL层）" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/da_faster_rcnn_PyTorch_comment$da_trainval_net.coverage" NAME="da_trainval_net Coverage Results" MODIFIED="1608271595451" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

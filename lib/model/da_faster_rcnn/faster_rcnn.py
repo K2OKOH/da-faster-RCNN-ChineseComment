@@ -77,8 +77,8 @@ class _fasterRCNN(nn.Module):
         输出:
             rois        ->  size([1, num_proposal, 5])
                 rois是anchor经过fg/bg预测 + nms 筛选过后的proposal, num_proposal<=2000, 最后一维[第一个元素恒定为0,x1,y1,x2,y2]
-            rpn_loss_cls    ->单个值
-            rpn_loss_bbox   ->单个值
+            rpn_loss_cls    ->  单个值
+            rpn_loss_bbox   ->  单个值
         '''
         rois, rpn_loss_cls, rpn_loss_bbox = self.RCNN_rpn(base_feat, im_info, gt_boxes, num_boxes)
 
@@ -142,22 +142,31 @@ class _fasterRCNN(nn.Module):
             pooled_feat = self.RCNN_roi_pool(base_feat, rois.view(-1,5))
 
         # feed pooled features to top model
-        # pooled_feat -> 大小(256,512,7,7)
+        # pooled_feat 大小变化 ([256,512,7,7]) -> ([256, 4096])
         # 利用vgg16的顶层(除最后一层) 输出 4096 个值
         pooled_feat = self._head_to_tail(pooled_feat)
 
         # compute bbox offset
         # 是回归输出 4 * class 个值
+        # bbox_pred -> ([256, 4*9])
         bbox_pred = self.RCNN_bbox_pred(pooled_feat)
+        # 如果是在训练中，并且是类相关的
         if self.training and not self.class_agnostic:
             # select the corresponding columns according to roi labels
+            # bbox_pred_view -> size([256, 9, 4])
             bbox_pred_view = bbox_pred.view(bbox_pred.size(0), int(bbox_pred.size(1) / 4), 4)
+            # rois_label.view(rois_label.size(0), 1, 1).expand(rois_label.size(0), 1, 4) -> size([256, 1, 4])
+            # 选出对应预测标签的4个坐标回归值 bbox_pred_select -> size([256, 1, 4])
             bbox_pred_select = torch.gather(bbox_pred_view, 1, rois_label.view(rois_label.size(0), 1, 1).expand(rois_label.size(0), 1, 4))
+            # bbox_pred -> size([256, 4])
             bbox_pred = bbox_pred_select.squeeze(1)
 
         # compute object classification probability
+        # 用于在 roi_pooling后的分类 维度 4096 -> 9
+        # cls_score -> size([256, 9])
         cls_score = self.RCNN_cls_score(pooled_feat)
         # 进行分类
+        # cls_prob -> size([256, 9])
         cls_prob = F.softmax(cls_score, 1)
 
         RCNN_loss_cls = 0
@@ -171,7 +180,9 @@ class _fasterRCNN(nn.Module):
             # bounding box regression L1 loss
             RCNN_loss_bbox = _smooth_l1_loss(bbox_pred, rois_target, rois_inside_ws, rois_outside_ws)
 
+        # cls_prob -> size([1, 256, 9])
         cls_prob = cls_prob.view(batch_size, rois.size(1), -1)
+        # bbox_pred -> size([1, 256, 4])
         bbox_pred = bbox_pred.view(batch_size, rois.size(1), -1)
 
         """ =================== for target =========================="""
@@ -288,7 +299,23 @@ class _fasterRCNN(nn.Module):
 
         tgt_DA_cst_loss = self.consistency_loss(tgt_instance_sigmoid, tgt_consistency_prob.detach())
 
-
+        '''
+        输出:
+            rois                ->  size([1,256,5])     预测框:最后一维 前1:0   后4:坐标
+            cls_prob            ->  size([1, 256, 9])   预测类别:onehot,softmax后
+            bbox_pred           ->  size([1, 256, 4])   预测框的坐标值(rois回归后)
+            rpn_loss_cls        ->  单个值               RPN分类损失
+            rpn_loss_box        ->  单个值               RPN回归损失
+            RCNN_loss_cls       ->  单个值               分类损失
+            RCNN_loss_bbox      ->  单个值               回归损失
+            rois_label          ->  size([256])         正样本标签
+            DA_img_loss_cls     ->  单个值               image-level源域损失
+            DA_ins_loss_cls     ->  单个值               instance-level源域损失
+            tgt_DA_img_loss_cls ->  单个值               image-level目标域损失
+            tgt_DA_ins_loss_cls ->  单个值               instance-level目标域损失
+            DA_cst_loss         ->  单个值               一致性源域损失
+            tgt_DA_cst_loss     ->  单个值               一致性目标域损失
+        '''
         return rois, cls_prob, bbox_pred, rpn_loss_cls, rpn_loss_bbox, RCNN_loss_cls, RCNN_loss_bbox, rois_label,\
                DA_img_loss_cls,DA_ins_loss_cls,tgt_DA_img_loss_cls,tgt_DA_ins_loss_cls,DA_cst_loss,tgt_DA_cst_loss
 
